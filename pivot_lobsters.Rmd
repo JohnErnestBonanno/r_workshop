@@ -1,0 +1,101 @@
+---
+title: "pivot_lobsters"
+author: "John Bonanno"
+date: "2025-04-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+options(tibble.print_max = 100, tibble.print_min = 100)
+
+library(tidyverse)
+library(readxl)
+library(here)
+library(skimr) # install.packages('skimr')
+library(kableExtra) # install.packages('kableExtra')
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r data_read}
+lobsters <- read_xlsx(here("data/lobsters.xlsx"), skip=4)
+
+head(lobsters)
+summary(lobsters)
+
+skimr::skim(lobsters)
+
+
+```
+
+```{r}
+lobsters %>%
+  group_by(year) %>%
+  summarize(count_by_year = n())
+```
+
+```{r}
+lobsters %>%
+  group_by(site, year) %>%
+  summarize(count_by_siteyear =  n())  %>%
+  print(n = 50)
+```
+
+```{r}
+siteyear_summary <- lobsters %>%
+  group_by(site, year) %>%
+  summarize(count_by_siteyear =  n(), 
+            mean_size_mm = mean(size_mm, na.rm = TRUE), 
+            sd_size_mm = sd(size_mm, na.rm = TRUE))
+
+siteyear_summary
+```
+```{r}
+siteyear_summary %>%
+  kable()
+```
+
+```{r}
+siteyear_summary <- lobsters %>%
+  group_by(site, year) %>%
+  summarize(count_by_siteyear =  n(), 
+            mean_size_mm = mean(size_mm, na.rm = TRUE), 
+            sd_size_mm = sd(size_mm, na.rm = TRUE), 
+            median_size_mm = median(size_mm, na.rm = TRUE))
+
+ggplot(data = siteyear_summary, 
+       aes(x = year, 
+           y = median_size_mm, 
+           color = site)) +
+  geom_line() 
+```
+```{r}
+ggsave(here("figures", "lobsters-line.png"))
+```
+
+```{r}
+ggplot(siteyear_summary, aes(x = year, y = median_size_mm)) +
+  geom_col() +
+  facet_wrap(~site)
+```
+
+```{r}
+ggsave(here("figures", "lobsters-col.png"))
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
