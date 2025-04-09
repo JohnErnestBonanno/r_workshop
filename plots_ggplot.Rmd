@@ -71,6 +71,39 @@ gg_base +
 gg_base + 
   geom_col(aes(fill = visitors))
 ```
+```{r}
+gg_base +
+  geom_line(linetype = "dotted") +
+  theme_bw() + #Adds Themes
+  labs( #Adds labels 
+    x = "Year",
+    y = "Annual park visitors",
+    title = "Channel Islands NP Visitation",
+    subtitle = "(1963 - 2016)" 
+  )
+```
+```{r}
+ggplot(data = ca_np, 
+       aes(x = year, 
+           y = visitors, 
+           group = park_name,
+           color = park_name)) +
+  geom_line()
+```
+```{r}
+gg_np <- ggplot(data = ca_np, aes(x = year, y = visitors, group = park_name))
+
+gg_np +
+  geom_line(show.legend = FALSE) +
+  theme_light() + 
+  labs(x = "year", y = "annual visitors") +
+  facet_wrap(~ park_name)
+
+
+```
+```{r}
+ggsave(here("figures", "np_graph.jpg"), dpi = 180, width = 8, height = 7)
+```
 
 
 ## Including Plots
